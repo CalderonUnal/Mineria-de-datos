@@ -5,6 +5,9 @@ import numpy as np
 import gzip
 import pickle 
 from tensorflow.keras.datasets import boston_housing
+### Titulo ## 
+def main():
+  st.title("Clasificación de la base de datos Boston Housing")
 ## Cargar el modelo ## 
 def load_model():
   filename = "model_trained_regressor.pkl.gz"
