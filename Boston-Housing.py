@@ -15,6 +15,11 @@ def load_model():
 model = load_model()
 # Título de la aplicación
 st.title("Predicción de precios de casas - Boston Housing")
+# Mostrar información sobre el modelo seleccionado
+st.subheader("Modelo Seleccionado")
+st.write("KernelRidge con StandardScaler")
+st.write("MAE: 2.615618572537296")
+st.write("Mejores parámetros: {'reg__alpha': 0.1, 'reg__kernel': 'rbf'}")
 
 st.write("Ingrese las características de la casa para predecir su precio:")
 
