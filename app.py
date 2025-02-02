@@ -10,7 +10,7 @@ def preprocess_image(image):
     image = image.convert('L')  # Convertir a escala de grises
     image = image.resize((28, 28))
     image_array = np.array(image) / 255.0  # Normalizar
-    image_array = image_array.reshape(1, 28, 28, 1)  # Formato adecuado para la red
+    image_array = image_array.flatten().reshape(1, -1)  # Convertir a vector de 784 elementos
     return image_array
 
 @st.cache_resource
@@ -52,3 +52,4 @@ if uploaded_file is not None:
 # Mostrar hiperparámetros del modelo
 st.subheader("Hiperparámetros del Mejor Modelo")
 st.json(hyperparameters)
+
