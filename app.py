@@ -13,7 +13,7 @@ def preprocess_image(image):
   return image_array
 
 def load_model():
-  filename = "model_trained_regressor.pkl.gz"
+  filename = "model_trained_classifier.pkl.gz"
   with gzip.open(filename, 'rb') as f:
     model = pickle.load(f)
   return model
