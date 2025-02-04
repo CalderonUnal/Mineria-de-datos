@@ -64,6 +64,11 @@ def main():
     # Título y descripción
     st.markdown('<div class="main-title">Clasificación de Dígitos MNIST</div>', unsafe_allow_html=True)
     st.markdown('<div class="description">Sube una imagen de un dígito y la clasificaremos usando un modelo preentrenado.</div>', unsafe_allow_html=True)
+# Mostrar información sobre el modelo seleccionado
+st.subheader("Modelo Seleccionado")
+st.write("KNeighborsClassifier con None")
+st.write("AUC: 0.8717")
+st.write("Mejores hiperparametros: {'reg__n_neighbors': 4, 'reg__p': 3}")
 
     # Widget de subida de archivos
     uploaded_file = st.file_uploader("Selecciona una imagen (PNG, JPG, JPEG):", type=["png", "jpg", "jpeg"])
