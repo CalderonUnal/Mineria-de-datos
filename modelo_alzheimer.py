@@ -23,8 +23,7 @@ st.subheader("Modelo Seleccionado")
 st.write("Modelo de clasificación de Alzheimer basado en características clínicas.")
 
 # Definir las características del dataset
-features = ['Age', 'Education Level', 'BMI', 'Cognitive Test Score', 'Depression Level',
-            'Sleep Quality', 'Air Pollution Exposure', 'Stress Levels']
+features = ['Age', 'Education Level', 'BMI', 'Cognitive Test Score']
 
 categorical_features = {
     'Gender': ['Male', 'Female'],
@@ -40,7 +39,11 @@ categorical_features = {
     'Genetic Risk Factor (APOE-ε4 allele)': ['No', 'Yes'],
     'Social Engagement Level': ['Low', 'Medium', 'High'],
     'Income Level': ['Low', 'Medium', 'High'],
-    'Urban vs Rural Living': ['Urban', 'Rural']
+    'Urban vs Rural Living': ['Urban', 'Rural'],
+    'Depression Level': ['Low', 'Medium', 'High'],
+    'Sleep Quality': ['Poor', 'Average', 'Good'],
+    'Air Pollution Exposure': ['Low', 'Medium', 'High'],
+    'Stress Levels': ['Low', 'Medium', 'High']
 }
 
 # Crear entradas para variables numéricas
@@ -61,4 +64,5 @@ if st.button("Predecir"):
     resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
     st.subheader("Resultado de la Predicción")
     st.write(resultado)
+
 
