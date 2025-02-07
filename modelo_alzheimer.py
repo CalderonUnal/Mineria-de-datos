@@ -10,6 +10,9 @@ def load_model():
     filename = "modelo_alzheimer.pkl.gz"
     with gzip.open(filename, 'rb') as f:
         model = pickle.load(f)
+    if not hasattr(model, 'predict'):
+        st.error("El modelo cargado no es válido. Asegúrate de que es un modelo de clasificación con el método 'predict'.")
+        return None
     return model
 
 # Cargar el modelo entrenado
@@ -64,18 +67,20 @@ for feature, categories in categorical_features.items():
     user_input.append(categories.index(value))  # Convertir a numérico
 
 # Botón para hacer la predicción
-if st.button("Predecir"): 
-    try:
-        input_array = np.array(user_input, dtype=float).reshape(1, -1)
-        if input_array.shape[1] != len(numeric_features) + len(continuous_features) + len(categorical_features):
-            st.error("Error: La cantidad de características ingresadas no coincide con la esperada por el modelo.")
-        else:
-            prediction = model.predict(input_array)
-            resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
-            st.subheader("Resultado de la Predicción")
-            st.write(resultado)
-    except Exception as e:
-        st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
-
+if st.button("Predecir"):
+    if model is None:
+        st.error("No se puede realizar la predicción porque el modelo no se cargó correctamente.")
+    else:
+        try:
+            input_array = np.array(user_input, dtype=float).reshape(1, -1)
+            if input_array.shape[1] != len(numeric_features) + len(continuous_features) + len(categorical_features):
+                st.error("Error: La cantidad de características ingresadas no coincide con la esperada por el modelo.")
+            else:
+                prediction = model.predict(input_array)
+                resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
+                st.subheader("Resultado de la Predicción")
+                st.write(resultado)
+        except Exception as e:
+            st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
 
 
