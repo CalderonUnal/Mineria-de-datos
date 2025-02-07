@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import gzip
 import pickle
+import pandas as pd
 
 # Función para cargar el modelo
 @st.cache_resource
@@ -21,21 +22,37 @@ st.title("Predicción Alzheimer")
 st.subheader("Modelo Seleccionado")
 st.write("Modelo de clasificación de Alzheimer basado en características clínicas.")
 
-# Definir las características del modelo
-features = [
-    "Edad", "Género", "Educación", "SES", "MMSE", "CDR", "eTIV", "nWBV", "ASF",
-    "Hipocampo Izquierdo", "Hipocampo Derecho", "Tercer Ventrículo", "Cuarto Ventrículo",
-    "Cisterna Magna", "Volumen de la sustancia blanca", "Grosor cortical promedio",
-    "Volumen del giro cingulado anterior", "Índice de atrofia ventricular",
-    "Volumen del tálamo izquierdo", "Volumen del tálamo derecho", "Volumen del caudado izquierdo",
-    "Volumen del caudado derecho", "Volumen del putamen izquierdo", "Volumen del putamen derecho"
-]
+# Definir las características del dataset
+features = ['Age', 'Education Level', 'BMI', 'Cognitive Test Score', 'Depression Level',
+            'Sleep Quality', 'Air Pollution Exposure', 'Stress Levels']
 
-# Crear entradas para cada característica
+categorical_features = {
+    'Gender': ['Male', 'Female'],
+    'Physical Activity Level': ['Low', 'Medium', 'High'],
+    'Smoking Status': ['Never', 'Former', 'Current'],
+    'Alcohol Consumption': ['Never', 'Occasionally', 'Regularly'],
+    'Diabetes': ['No', 'Yes'],
+    'Hypertension': ['No', 'Yes'],
+    'Family History of Alzheimer’s': ['No', 'Yes'],
+    'Dietary Habits': ['Unhealthy', 'Average', 'Healthy'],
+    'Employment Status': ['Unemployed', 'Employed', 'Retired'],
+    'Marital Status': ['Single', 'Married', 'Widowed'],
+    'Genetic Risk Factor (APOE-ε4 allele)': ['No', 'Yes'],
+    'Social Engagement Level': ['Low', 'Medium', 'High'],
+    'Income Level': ['Low', 'Medium', 'High'],
+    'Urban vs Rural Living': ['Urban', 'Rural']
+}
+
+# Crear entradas para variables numéricas
 user_input = []
 for feature in features:
     value = st.number_input(f"{feature}", value=0.0, format="%.2f")
     user_input.append(value)
+
+# Crear entradas para variables categóricas
+for feature, categories in categorical_features.items():
+    value = st.selectbox(f"{feature}", categories)
+    user_input.append(categories.index(value))  # Convertir a numérico
 
 # Botón para hacer la predicción
 if st.button("Predecir"): 
@@ -44,3 +61,4 @@ if st.button("Predecir"):
     resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
     st.subheader("Resultado de la Predicción")
     st.write(resultado)
+
