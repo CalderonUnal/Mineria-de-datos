@@ -65,11 +65,17 @@ for feature, categories in categorical_features.items():
 
 # Botón para hacer la predicción
 if st.button("Predecir"): 
-    input_array = np.array(user_input).reshape(1, -1)
-    prediction = model.predict(input_array)
-    resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
-    st.subheader("Resultado de la Predicción")
-    st.write(resultado)
+    try:
+        input_array = np.array(user_input, dtype=float).reshape(1, -1)
+        if input_array.shape[1] != len(numeric_features) + len(continuous_features) + len(categorical_features):
+            st.error("Error: La cantidad de características ingresadas no coincide con la esperada por el modelo.")
+        else:
+            prediction = model.predict(input_array)
+            resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
+            st.subheader("Resultado de la Predicción")
+            st.write(resultado)
+    except Exception as e:
+        st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
 
 
 
