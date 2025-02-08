@@ -57,6 +57,9 @@ if st.button("Predecir"):
         try:
             df_input = pd.DataFrame([user_input])
 
+            # Mostrar valores antes de transformación
+            st.write("Valores de entrada antes del encoding:", df_input)
+
             # Aplicar Label Encoding correctamente
             for col in categorical_features:
                 if col in label_encoders:
@@ -70,8 +73,14 @@ if st.button("Predecir"):
             for col in numeric_features + continuous_features:
                 df_input[col] = df_input[col].astype(np.float32)
 
+            # Mostrar valores después del encoding
+            st.write("Valores después del encoding:", df_input)
+
             # Convertir a array NumPy con la forma correcta
-            input_array = np.array(df_input, dtype=np.float32).reshape(1, -1)  # Forzar conversión segura
+            input_array = np.array(df_input, dtype=np.float32).reshape(1, -1)
+
+            # Mostrar la forma del array antes de predecir
+            st.write(f"Forma del array de entrada: {input_array.shape}")
 
             # Hacer la predicción
             prediction = model.predict(input_array)
