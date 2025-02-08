@@ -85,8 +85,15 @@ if st.button("Predecir"):
             # Hacer la predicción asegurando que es un array de NumPy
             prediction = model.predict(input_array)
 
-            # Asegurar que prediction sea escalar
-            prediction_value = prediction[0] if isinstance(prediction, (list, np.ndarray)) else prediction
+            # Verificar el tipo de salida de la predicción
+            st.write(f"Tipo de salida del modelo: {type(prediction)}")
+            st.write(f"Valor de predicción crudo: {prediction}")
+
+            # Convertir a escalar si es un array de tamaño 1
+            if isinstance(prediction, (np.ndarray, list)) and len(prediction) == 1:
+                prediction_value = prediction[0]
+            else:
+                prediction_value = prediction  # Si ya es un escalar, lo dejamos así
 
             resultado = "Positivo para Alzheimer" if prediction_value == 1 else "Negativo para Alzheimer"
             st.subheader("Resultado de la Predicción")
@@ -94,3 +101,4 @@ if st.button("Predecir"):
 
         except Exception as e:
             st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
+
