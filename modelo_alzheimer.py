@@ -39,25 +39,16 @@ continuous_features = ['BMI']
 user_input = {}
 
 # Obtener valores de entrada numéricos
-def get_numeric_input(label, min_value=0, step=1):
-    return st.number_input(label, min_value=min_value, step=step)
-
-def get_continuous_input(label):
-    return st.number_input(label, value=0.0, format="%.2f")
-
 for feature in numeric_features:
-    user_input[feature] = get_numeric_input(feature)
+    user_input[feature] = st.number_input(feature, min_value=0, step=1, format="%d")
 
 for feature in continuous_features:
-    user_input[feature] = get_continuous_input(feature)
+    user_input[feature] = st.number_input(feature, value=0.0, format="%.2f")
 
 # Obtener valores de entrada categóricos
-def get_categorical_input(label, options):
-    return st.selectbox(label, options)
-
 for feature in categorical_features:
     if feature in label_encoders:
-        user_input[feature] = get_categorical_input(feature, label_encoders[feature].classes_)
+        user_input[feature] = st.selectbox(feature, label_encoders[feature].classes_)
 
 if st.button("Predecir"):
     if model is None:
@@ -69,19 +60,23 @@ if st.button("Predecir"):
             # Aplicar Label Encoding correctamente
             for col in categorical_features:
                 if col in label_encoders:
-                    df_input[col] = df_input[col].map(lambda x: label_encoders[col].transform([x])[0] if x in label_encoders[col].classes_ else None)
-            
-            # Verificar si hay valores nulos después del encoding
-            if df_input.isnull().any().any():
-                st.error("Algunos valores ingresados no están en el conjunto de entrenamiento del LabelEncoder.")
-            else:
-                # Convertir a array NumPy con la forma correcta
-                input_array = df_input.to_numpy().reshape(1, -1)  # Asegura que sea un array 2D
+                    if user_input[col] in label_encoders[col].classes_:
+                        df_input[col] = label_encoders[col].transform([user_input[col]])[0]
+                    else:
+                        st.error(f"El valor '{user_input[col]}' no está en el conjunto de entrenamiento del LabelEncoder.")
+                        st.stop()
 
-                prediction = model.predict(input_array)
+            # Convertir todas las columnas numéricas a float32
+            df_input = df_input.astype(np.float32)
 
-                resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
-                st.subheader("Resultado de la Predicción")
-                st.write(resultado)
+            # Convertir a array NumPy con la forma correcta
+            input_array = df_input.to_numpy().reshape(1, -1)
+
+            # Hacer la predicción
+            prediction = model.predict(input_array)
+
+            resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
+            st.subheader("Resultado de la Predicción")
+            st.write(resultado)
         except Exception as e:
             st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
