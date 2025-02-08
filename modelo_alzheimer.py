@@ -66,18 +66,22 @@ if st.button("Predecir"):
         try:
             df_input = pd.DataFrame([user_input])
 
-            # Aplicar Label Encoding usando los LabelEncoders guardados
+            # Aplicar Label Encoding correctamente
             for col in categorical_features:
                 if col in label_encoders:
-                    df_input[col] = label_encoders[col].transform(df_input[col])
+                    df_input[col] = df_input[col].map(lambda x: label_encoders[col].transform([x])[0] if x in label_encoders[col].classes_ else None)
             
-            # Convertir a array NumPy para el modelo
-            input_array = df_input.to_numpy()
-            prediction = model.predict(input_array)
+            # Verificar si hay valores nulos después del encoding
+            if df_input.isnull().any().any():
+                st.error("Algunos valores ingresados no están en el conjunto de entrenamiento del LabelEncoder.")
+            else:
+                # Convertir a array NumPy con la forma correcta
+                input_array = df_input.to_numpy().reshape(1, -1)  # Asegura que sea un array 2D
 
-            resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
-            st.subheader("Resultado de la Predicción")
-            st.write(resultado)
+                prediction = model.predict(input_array)
+
+                resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
+                st.subheader("Resultado de la Predicción")
+                st.write(resultado)
         except Exception as e:
             st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
-
