@@ -74,24 +74,27 @@ if st.button("Predecir"):
             df_input = pd.DataFrame([user_input], columns=column_names)
 
             categorical_columns = ['Country', 'Gender', 'Smoking Status', 'Alcohol Consumption', 'Diabetes',
-                                   'Hypertension', 'Cholesterol Level', 'Family History of Alzheimer’s',
-                                   'Employment Status', 'Marital Status', 'Genetic Risk Factor (APOE-ε4 allele)',
-                                   'Urban vs Rural Living']
+                                 'Hypertension', 'Cholesterol Level', 'Family History of Alzheimer’s',
+                                 'Employment Status', 'Marital Status', 'Genetic Risk Factor (APOE-ε4 allele)',
+                                 'Urban vs Rural Living']
 
             # Aplicar One-Hot Encoding
+            
             df_input = pd.get_dummies(df_input, columns=categorical_columns, drop_first=True)
-
+            
+            st.error(f" {df_input.shape[1]}.")
             # Aplicar Label Encoding a variables ordinales
             ordinal_columns = ['Physical Activity Level', 'Depression Level', 'Sleep Quality', 'Dietary Habits',
-                               'Air Pollution Exposure', 'Social Engagement Level', 'Income Level', 'Stress Levels',
-                               'Education Level']
+                   'Air Pollution Exposure', 'Social Engagement Level', 'Income Level', 'Stress Levels',
+                   'Alzheimer’s Diagnosis']
 
             label_encoders = {col: LabelEncoder() for col in ordinal_columns}
             for col in ordinal_columns:
                 df_input[col] = label_encoders[col].fit_transform(df_input[col])
-
+            df_input['Education Level'] = le.fit_transform(df_input['Education Level'])
+            st.error(f" {df_input.shape[1]}.")
             # Verificación de número de columnas
-            expected_columns = [...]  # Lista de las 46 columnas esperadas en el modelo
+        
 
             if df_input.shape[1] != 46:
                 st.error(f"Error: Se esperaban 46 columnas, pero se obtuvieron {df_input.shape[1]}.")
