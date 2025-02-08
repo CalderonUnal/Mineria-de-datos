@@ -43,7 +43,6 @@ categorical_features = {
 
 numeric_features = ['Age', 'Education Level', 'Cognitive Test Score']
 continuous_features = ['BMI']
-
 user_input = []
 
 for feature in numeric_features:
@@ -79,37 +78,10 @@ if st.button("Predecir"):
                                    'Employment Status', 'Marital Status', 'Genetic Risk Factor (APOE-ε4 allele)',
                                    'Urban vs Rural Living']
 
+            # Aplicar One-Hot Encoding
             df_input = pd.get_dummies(df_input, columns=categorical_columns, drop_first=True)
 
-            expected_columns = [
-                'Age', 'Education Level', 'Cognitive Test Score', 'BMI', 
-                'Physical Activity Level', 'Depression Level', 'Sleep Quality', 'Dietary Habits',
-                'Air Pollution Exposure', 'Social Engagement Level', 'Income Level', 'Stress Levels'
-            ]
-
-            categorical_dummy_columns = [
-                'Country_Australia', 'Country_Brazil', 'Country_Canada', 'Country_China', 'Country_France',
-                'Country_Germany', 'Country_India', 'Country_Italy', 'Country_Japan', 'Country_Mexico',
-                'Country_Norway', 'Country_Russia', 'Country_Saudi Arabia', 'Country_South Africa',
-                'Country_South Korea', 'Country_Spain', 'Country_Sweden', 'Country_UK', 'Country_USA',
-                'Gender_Male', 'Smoking Status_Former', 'Smoking Status_Never', 'Smoking Status_Current',
-                'Alcohol Consumption_Never', 'Alcohol Consumption_Occasionally', 'Alcohol Consumption_Regularly',
-                'Diabetes_Yes', 'Hypertension_Yes', 'Cholesterol Level_Low', 'Cholesterol Level_Normal',
-                'Cholesterol Level_High', 'Family History of Alzheimer’s_Yes', 'Employment Status_Employed',
-                'Employment Status_Retired', 'Marital Status_Married', 'Marital Status_Widowed',
-                'Genetic Risk Factor (APOE-ε4 allele)_Yes', 'Urban vs Rural Living_Urban'
-            ]
-
-            expected_columns.extend(categorical_dummy_columns)
-
-            missing_cols = [col for col in expected_columns if col not in df_input.columns]
-            extra_cols = [col for col in df_input.columns if col not in expected_columns]
-
-            for col in missing_cols:
-                df_input[col] = 0
-
-            df_input = df_input[expected_columns]
-
+            # Aplicar Label Encoding a variables ordinales
             ordinal_columns = ['Physical Activity Level', 'Depression Level', 'Sleep Quality', 'Dietary Habits',
                                'Air Pollution Exposure', 'Social Engagement Level', 'Income Level', 'Stress Levels',
                                'Education Level']
@@ -118,20 +90,31 @@ if st.button("Predecir"):
             for col in ordinal_columns:
                 df_input[col] = label_encoders[col].fit_transform(df_input[col])
 
+            # Verificación de número de columnas
+            expected_columns = [...]  # Lista de las 46 columnas esperadas en el modelo
+
             if df_input.shape[1] != 46:
                 st.error(f"Error: Se esperaban 46 columnas, pero se obtuvieron {df_input.shape[1]}.")
-                st.write("Columnas actuales:", df_input.columns.tolist())
+                st.write("Columnas actuales después de transformación:", df_input.columns.tolist())
+
+                missing_cols = [col for col in expected_columns if col not in df_input.columns]
+                extra_cols = [col for col in df_input.columns if col not in expected_columns]
+
                 st.write("Columnas extra:", extra_cols)
                 st.write("Columnas faltantes:", missing_cols)
-            else:
-                if df_input.shape[1] != 46:
+
+                # Solución: Reindexar para asegurar que todas las columnas estén presentes
+                df_input = df_input.reindex(columns=expected_columns, fill_value=0)
+                st.write(f"Después de la corrección, total de columnas: {df_input.shape[1]}")
+
+            if df_input.shape[1] == 46:
+                # Convertir a array NumPy para el modelo
                 input_array = df_input.to_numpy()
                 prediction = model.predict(input_array)
 
                 resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
                 st.subheader("Resultado de la Predicción")
                 st.write(resultado)
-
         except Exception as e:
             st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
 
