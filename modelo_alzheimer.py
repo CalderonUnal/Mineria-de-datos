@@ -126,18 +126,18 @@ if st.button("Predecir"):
             else:
                 input_array = df_input.to_numpy()
                 if df_input.shape[1] != 46:
-    st.error(f"Error: Se esperaban 46 columnas, pero se obtuvieron {df_input.shape[1]}.")
-    st.write("Columnas actuales después de transformación:", df_input.columns.tolist())
-    
-    missing_cols = [col for col in expected_columns if col not in df_input.columns]
-    extra_cols = [col for col in df_input.columns if col not in expected_columns]
-    
-    st.write("Columnas extra:", extra_cols)
-    st.write("Columnas faltantes:", missing_cols)
-
-    # Solución: Eliminar columnas extra y agregar las que faltan
-    df_input = df_input.reindex(columns=expected_columns, fill_value=0)
-    st.write(f"Después de la corrección, total de columnas: {df_input.shape[1]}")
+                st.error(f"Error: Se esperaban 46 columnas, pero se obtuvieron {df_input.shape[1]}.")
+                st.write("Columnas actuales después de transformación:", df_input.columns.tolist())
+                
+                missing_cols = [col for col in expected_columns if col not in df_input.columns]
+                extra_cols = [col for col in df_input.columns if col not in expected_columns]
+                
+                st.write("Columnas extra:", extra_cols)
+                st.write("Columnas faltantes:", missing_cols)
+            
+                # Solución: Eliminar columnas extra y agregar las que faltan
+                df_input = df_input.reindex(columns=expected_columns, fill_value=0)
+                st.write(f"Después de la corrección, total de columnas: {df_input.shape[1]}")
                 prediction = model.predict(input_array)
 
                 resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
