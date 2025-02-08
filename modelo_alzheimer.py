@@ -61,16 +61,17 @@ if st.button("Predecir"):
             for col in categorical_features:
                 if col in label_encoders:
                     if user_input[col] in label_encoders[col].classes_:
-                        df_input[col] = label_encoders[col].transform([user_input[col]])[0]
+                        df_input[col] = label_encoders[col].transform([user_input[col]])[0]  # Transformar individualmente
                     else:
                         st.error(f"El valor '{user_input[col]}' no está en el conjunto de entrenamiento del LabelEncoder.")
                         st.stop()
 
-            # Convertir todas las columnas numéricas a float32
-            df_input = df_input.astype(np.float32)
+            # Asegurar que todas las variables numéricas sean float32
+            for col in numeric_features + continuous_features:
+                df_input[col] = df_input[col].astype(np.float32)
 
             # Convertir a array NumPy con la forma correcta
-            input_array = df_input.to_numpy().reshape(1, -1)
+            input_array = np.array(df_input, dtype=np.float32).reshape(1, -1)  # Forzar conversión segura
 
             # Hacer la predicción
             prediction = model.predict(input_array)
@@ -78,5 +79,6 @@ if st.button("Predecir"):
             resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
             st.subheader("Resultado de la Predicción")
             st.write(resultado)
+
         except Exception as e:
             st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
