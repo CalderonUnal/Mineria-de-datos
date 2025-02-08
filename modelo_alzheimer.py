@@ -16,7 +16,7 @@ model = load_model()
 
 st.title("Predicción de Alzheimer")
 
-# Variables del dataset
+# Variables categóricas
 categorical_features = {
     'Country': ['Australia', 'Brazil', 'Canada', 'China', 'France', 'Germany', 'India', 'Italy', 'Japan', 'Mexico', 
                 'Norway', 'Russia', 'Saudi Arabia', 'South Africa', 'South Korea', 'Spain', 'Sweden', 'UK', 'USA'],
@@ -79,7 +79,7 @@ if st.button("Predecir"):
                                    'Employment Status', 'Marital Status', 'Genetic Risk Factor (APOE-ε4 allele)',
                                    'Urban vs Rural Living']
 
-            df_input = pd.get_dummies(df_input, columns=categorical_columns, drop_first=False)
+            df_input = pd.get_dummies(df_input, columns=categorical_columns, drop_first=True)
 
             expected_columns = [
                 'Age', 'Education Level', 'Cognitive Test Score', 'BMI', 
@@ -87,12 +87,24 @@ if st.button("Predecir"):
                 'Air Pollution Exposure', 'Social Engagement Level', 'Income Level', 'Stress Levels'
             ]
 
-            for feature, categories in categorical_features.items():
-                for category in categories:
-                    col_name = f"{feature}_{category}"
-                    expected_columns.append(col_name)
+            categorical_dummy_columns = [
+                'Country_Australia', 'Country_Brazil', 'Country_Canada', 'Country_China', 'Country_France',
+                'Country_Germany', 'Country_India', 'Country_Italy', 'Country_Japan', 'Country_Mexico',
+                'Country_Norway', 'Country_Russia', 'Country_Saudi Arabia', 'Country_South Africa',
+                'Country_South Korea', 'Country_Spain', 'Country_Sweden', 'Country_UK', 'Country_USA',
+                'Gender_Male', 'Smoking Status_Former', 'Smoking Status_Never', 'Smoking Status_Current',
+                'Alcohol Consumption_Never', 'Alcohol Consumption_Occasionally', 'Alcohol Consumption_Regularly',
+                'Diabetes_Yes', 'Hypertension_Yes', 'Cholesterol Level_Low', 'Cholesterol Level_Normal',
+                'Cholesterol Level_High', 'Family History of Alzheimer’s_Yes', 'Employment Status_Employed',
+                'Employment Status_Retired', 'Marital Status_Married', 'Marital Status_Widowed',
+                'Genetic Risk Factor (APOE-ε4 allele)_Yes', 'Urban vs Rural Living_Urban'
+            ]
+
+            expected_columns.extend(categorical_dummy_columns)
 
             missing_cols = [col for col in expected_columns if col not in df_input.columns]
+            extra_cols = [col for col in df_input.columns if col not in expected_columns]
+
             for col in missing_cols:
                 df_input[col] = 0
 
@@ -109,6 +121,8 @@ if st.button("Predecir"):
             if df_input.shape[1] != 46:
                 st.error(f"Error: Se esperaban 46 columnas, pero se obtuvieron {df_input.shape[1]}.")
                 st.write("Columnas actuales:", df_input.columns.tolist())
+                st.write("Columnas extra:", extra_cols)
+                st.write("Columnas faltantes:", missing_cols)
             else:
                 input_array = df_input.to_numpy()
                 prediction = model.predict(input_array)
