@@ -76,7 +76,7 @@ if st.button("Predecir"):
             if input_array.shape[1] != len(numeric_features) + len(continuous_features) + len(categorical_features):
                 st.error("Error: La cantidad de características ingresadas no coincide con la esperada por el modelo.")
             else:
-                columns_names = ['Country', 'Age', 'Gender', 'Education Level', 'BMI',
+                column_names = ['Country', 'Age', 'Gender', 'Education Level', 'BMI',
                'Physical Activity Level', 'Smoking Status', 'Alcohol Consumption',
                'Diabetes', 'Hypertension', 'Cholesterol Level',
                'Family History of Alzheimer’s', 'Cognitive Test Score',
