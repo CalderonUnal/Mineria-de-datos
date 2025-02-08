@@ -57,48 +57,28 @@ if st.button("Predecir"):
         try:
             df_input = pd.DataFrame([user_input])
 
-            # Mostrar valores antes del encoding
-            st.write("Valores de entrada antes del encoding:", df_input)
-
-            # Aplicar Label Encoding correctamente y asegurarse de que devuelve valores escalares
+            # Aplicar Label Encoding correctamente
             for col in categorical_features:
                 if col in label_encoders:
                     if user_input[col] in label_encoders[col].classes_:
-                        df_input[col] = label_encoders[col].transform([user_input[col]])[0]  # Extraer escalar
+                        df_input[col] = label_encoders[col].transform([user_input[col]])[0]
                     else:
                         st.error(f"El valor '{user_input[col]}' no está en el conjunto de entrenamiento del LabelEncoder.")
                         st.stop()
 
-            # Asegurar que todas las variables numéricas sean float32
-            for col in numeric_features + continuous_features:
-                df_input[col] = df_input[col].astype(np.float32)
+            # Convertir todas las columnas numéricas a float32
+            df_input = df_input.astype(np.float32)
 
-            # Mostrar valores después del encoding
-            st.write("Valores después del encoding:", df_input)
+            # Convertir a array NumPy con la forma correcta
+            input_array = df_input.to_numpy().reshape(1, -1)
 
-            # Convertir a array NumPy correctamente
-            input_array = df_input.to_numpy().astype(np.float32)  # Convertir correctamente
-
-            # Mostrar la forma del array antes de predecir
-            st.write(f"Forma del array de entrada: {input_array.shape}")
-
-            # Hacer la predicción asegurando que es un array de NumPy
+            # Hacer la predicción
             prediction = model.predict(input_array)
 
-            # Verificar el tipo de salida de la predicción
-            st.write(f"Tipo de salida del modelo: {type(prediction)}")
-            st.write(f"Valor de predicción crudo: {prediction}")
-
-            # Convertir a escalar si es un array de tamaño 1
-            if isinstance(prediction, (np.ndarray, list)) and len(prediction) == 1:
-                prediction_value = prediction[0]
-            else:
-                prediction_value = prediction  # Si ya es un escalar, lo dejamos así
-
-            resultado = "Positivo para Alzheimer" if prediction_value == 1 else "Negativo para Alzheimer"
+            resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
             st.subheader("Resultado de la Predicción")
             st.write(resultado)
-
         except Exception as e:
             st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
+
 
