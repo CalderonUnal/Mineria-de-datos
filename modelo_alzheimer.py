@@ -57,14 +57,14 @@ if st.button("Predecir"):
         try:
             df_input = pd.DataFrame([user_input])
 
-            # Mostrar valores antes de transformación
+            # Mostrar valores antes del encoding
             st.write("Valores de entrada antes del encoding:", df_input)
 
-            # Aplicar Label Encoding correctamente
+            # Aplicar Label Encoding correctamente y asegurarse de que devuelve valores escalares
             for col in categorical_features:
                 if col in label_encoders:
                     if user_input[col] in label_encoders[col].classes_:
-                        df_input[col] = label_encoders[col].transform([user_input[col]])[0]  # Transformar individualmente
+                        df_input[col] = label_encoders[col].transform([user_input[col]])[0]  # Extraer escalar
                     else:
                         st.error(f"El valor '{user_input[col]}' no está en el conjunto de entrenamiento del LabelEncoder.")
                         st.stop()
@@ -76,16 +76,19 @@ if st.button("Predecir"):
             # Mostrar valores después del encoding
             st.write("Valores después del encoding:", df_input)
 
-            # Convertir a array NumPy con la forma correcta
-            input_array = np.array(df_input, dtype=np.float32).reshape(1, -1)
+            # Convertir a array NumPy correctamente
+            input_array = df_input.to_numpy().astype(np.float32)  # Convertir correctamente
 
             # Mostrar la forma del array antes de predecir
             st.write(f"Forma del array de entrada: {input_array.shape}")
 
-            # Hacer la predicción
+            # Hacer la predicción asegurando que es un array de NumPy
             prediction = model.predict(input_array)
 
-            resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
+            # Asegurar que prediction sea escalar
+            prediction_value = prediction[0] if isinstance(prediction, (list, np.ndarray)) else prediction
+
+            resultado = "Positivo para Alzheimer" if prediction_value == 1 else "Negativo para Alzheimer"
             st.subheader("Resultado de la Predicción")
             st.write(resultado)
 
