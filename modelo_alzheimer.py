@@ -3,6 +3,7 @@ import numpy as np
 import gzip
 import pickle
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 # Función para cargar el modelo
 @st.cache_resource
@@ -19,44 +20,57 @@ def load_model():
 model = load_model()
 
 # Título de la aplicación
-st.title("Predicción Alzheimer")
+st.title("Predicción de Alzheimer")
+
+# Mostrar información sobre el modelo seleccionado
+st.subheader("Modelo Seleccionado")
+st.write("Modelo de clasificación de Alzheimer basado en características clínicas.")
 
 # Definir las características del dataset
-numeric_features = ['Age', 'Education Level', 'BMI', 'Cognitive Test Score']
-ordinal_features = ['Physical Activity Level', 'Depression Level', 'Sleep Quality', 'Dietary Habits',
-                    'Air Pollution Exposure', 'Social Engagement Level', 'Income Level', 'Stress Levels']
+numeric_features = ['Age', 'Education Level', 'Cognitive Test Score']
+continuous_features = ['BMI']
 
-dummy_features = ['Country', 'Gender', 'Smoking Status', 'Alcohol Consumption', 'Diabetes', 'Hypertension',
-                  'Cholesterol Level', 'Family History of Alzheimer’s', 'Employment Status', 'Marital Status',
-                  'Genetic Risk Factor (APOE-ε4 allele)', 'Urban vs Rural Living']
-
-# Crear entradas para variables numéricas
-data_input = {}
-for feature in numeric_features:
-    data_input[feature] = st.number_input(f"{feature}", min_value=0.0, format="%.2f")
-
-# Crear entradas para variables ordinales
-ordinal_mappings = {
+categorical_features = {
+    'Country': ['Australia', 'Brazil', 'Canada', 'China', 'France', 'Germany', 'India', 'Italy', 'Japan', 'Mexico', 
+                'Norway', 'Russia', 'Saudi Arabia', 'South Africa', 'South Korea', 'Spain', 'Sweden', 'UK', 'USA'],
+    'Gender': ['Male', 'Female'],
     'Physical Activity Level': ['Low', 'Medium', 'High'],
-    'Depression Level': ['Low', 'Medium', 'High'],
-    'Sleep Quality': ['Poor', 'Average', 'Good'],
+    'Smoking Status': ['Never', 'Former', 'Current'],
+    'Alcohol Consumption': ['Never', 'Occasionally', 'Regularly'],
+    'Diabetes': ['No', 'Yes'],
+    'Hypertension': ['No', 'Yes'],
+    'Cholesterol Level': ['Low', 'Normal', 'High'],
+    'Family History of Alzheimer’s': ['No', 'Yes'],
     'Dietary Habits': ['Unhealthy', 'Average', 'Healthy'],
-    'Air Pollution Exposure': ['Low', 'Medium', 'High'],
+    'Employment Status': ['Unemployed', 'Employed', 'Retired'],
+    'Marital Status': ['Single', 'Married', 'Widowed'],
+    'Genetic Risk Factor (APOE-ε4 allele)': ['No', 'Yes'],
     'Social Engagement Level': ['Low', 'Medium', 'High'],
     'Income Level': ['Low', 'Medium', 'High'],
+    'Urban vs Rural Living': ['Urban', 'Rural'],
+    'Depression Level': ['Low', 'Medium', 'High'],
+    'Sleep Quality': ['Poor', 'Average', 'Good'],
+    'Air Pollution Exposure': ['Low', 'Medium', 'High'],
     'Stress Levels': ['Low', 'Medium', 'High']
 }
 
-for feature, categories in ordinal_mappings.items():
-    data_input[feature] = categories.index(st.selectbox(f"{feature}", categories))
+# Entrada de usuario
+user_input = []
 
-# Crear entradas para variables dummy
-for feature in dummy_features:
-    categories = pd.unique(df[feature])
-    selected_category = st.selectbox(f"{feature}", categories)
-    for category in categories:
-        column_name = f"{feature}_{category}"
-        data_input[column_name] = 1 if selected_category == category else 0
+# Entradas para variables numéricas discretas
+for feature in numeric_features:
+    value = st.number_input(f"{feature}", min_value=0, step=1)
+    user_input.append(value)
+
+# Entradas para variables numéricas continuas
+for feature in continuous_features:
+    value = st.number_input(f"{feature}", value=0.0, format="%.2f")
+    user_input.append(value)
+
+# Entradas para variables categóricas
+for feature, categories in categorical_features.items():
+    value = st.selectbox(f"{feature}", categories)
+    user_input.append(categories.index(value))  # Convertir a numérico
 
 # Botón para hacer la predicción
 if st.button("Predecir"):
@@ -64,10 +78,49 @@ if st.button("Predecir"):
         st.error("No se puede realizar la predicción porque el modelo no se cargó correctamente.")
     else:
         try:
-            input_array = np.array([list(data_input.values())]).astype(float)
-            prediction = model.predict(input_array)
-            resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
-            st.subheader("Resultado de la Predicción")
-            st.write(resultado)
+            input_array = np.array(user_input, dtype=float).reshape(1, -1)
+            expected_features = len(numeric_features) + len(continuous_features) + len(categorical_features)
+
+            if input_array.shape[1] != expected_features:
+                st.error("Error: La cantidad de características ingresadas no coincide con la esperada por el modelo.")
+            else:
+                column_names = ['Country', 'Age', 'Gender', 'Education Level', 'BMI',
+                                'Physical Activity Level', 'Smoking Status', 'Alcohol Consumption',
+                                'Diabetes', 'Hypertension', 'Cholesterol Level',
+                                'Family History of Alzheimer’s', 'Cognitive Test Score',
+                                'Depression Level', 'Sleep Quality', 'Dietary Habits',
+                                'Air Pollution Exposure', 'Employment Status', 'Marital Status',
+                                'Genetic Risk Factor (APOE-ε4 allele)', 'Social Engagement Level',
+                                'Income Level', 'Stress Levels', 'Urban vs Rural Living']
+                
+                df_input = pd.DataFrame(input_array, columns=column_names)
+
+                # Variables categóricas sin orden jerárquico
+                categorical_columns = ['Country', 'Gender', 'Smoking Status', 'Alcohol Consumption', 'Diabetes',
+                                       'Hypertension', 'Cholesterol Level', 'Family History of Alzheimer’s',
+                                       'Employment Status', 'Marital Status', 'Genetic Risk Factor (APOE-ε4 allele)',
+                                       'Urban vs Rural Living']
+                
+                # Aplicar One-Hot Encoding sin la primera categoría (drop_first=True)
+                df_input = pd.get_dummies(df_input, columns=categorical_columns, drop_first=True)
+
+                # Variables ordinales
+                ordinal_columns = ['Physical Activity Level', 'Depression Level', 'Sleep Quality', 'Dietary Habits',
+                                   'Air Pollution Exposure', 'Social Engagement Level', 'Income Level', 'Stress Levels',
+                                   'Education Level']
+                
+                # Aplicar Label Encoding
+                label_encoders = {col: LabelEncoder() for col in ordinal_columns}
+                
+                for col in ordinal_columns:
+                    df_input[col] = label_encoders[col].fit_transform(df_input[col])
+
+                input_array = df_input.to_numpy()
+                
+                prediction = model.predict(input_array)
+
+                resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
+                st.subheader("Resultado de la Predicción")
+                st.write(resultado)
         except Exception as e:
             st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
