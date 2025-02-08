@@ -52,19 +52,29 @@ categorical_features = {
 
 # Crear entradas para variables numéricas discretas
 user_input = []
-for feature in numeric_features:
-    value = st.number_input(f"{feature}", min_value=0, step=1)
-    user_input.append(value)
 
-# Crear entradas para variables numéricas continuas
-for feature in continuous_features:
-    value = st.number_input(f"{feature}", value=0.0, format="%.2f")
-    user_input.append(value)
+# entrada país
+value = st.number_input("país", min_value=0, step=1)
+user_input.append(value)
 
-# Crear entradas para variables categóricas
-for feature, categories in categorical_features.items():
-    value = st.selectbox(f"{feature}", categories)
-    user_input.append(categories.index(value))  # Convertir a numérico
+# entrada edad
+value = st.number_input("edad", min_value=0, step=1)
+user_input.append(value)
+
+
+# for feature in numeric_features:
+#     value = st.number_input(f"{feature}", min_value=0, step=1)
+#     user_input.append(value)
+
+# # Crear entradas para variables numéricas continuas
+# for feature in continuous_features:
+#     value = st.number_input(f"{feature}", value=0.0, format="%.2f")
+#     user_input.append(value)
+
+# # Crear entradas para variables categóricas
+# for feature, categories in categorical_features.items():
+#     value = st.selectbox(f"{feature}", categories)
+#     user_input.append(categories.index(value))  # Convertir a numérico
 
 # Botón para hacer la predicción
 if st.button("Predecir"):
@@ -83,8 +93,8 @@ if st.button("Predecir"):
                'Depression Level', 'Sleep Quality', 'Dietary Habits',
                'Air Pollution Exposure', 'Employment Status', 'Marital Status',
                'Genetic Risk Factor (APOE-ε4 allele)', 'Social Engagement Level',
-               'Income Level', 'Stress Levels', 'Urban vs Rural Living',
-               'Alzheimer’s Diagnosis']
+               'Income Level', 'Stress Levels', 'Urban vs Rural Living']
+                
                 df_input = pd.DataFrame(input_array, columns=column_names)   
 
                 # Lista de variables categóricas sin orden jerárquico
