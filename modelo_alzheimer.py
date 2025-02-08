@@ -76,7 +76,42 @@ if st.button("Predecir"):
             if input_array.shape[1] != len(numeric_features) + len(continuous_features) + len(categorical_features):
                 st.error("Error: La cantidad de características ingresadas no coincide con la esperada por el modelo.")
             else:
+                columns_names = ['Country', 'Age', 'Gender', 'Education Level', 'BMI',
+               'Physical Activity Level', 'Smoking Status', 'Alcohol Consumption',
+               'Diabetes', 'Hypertension', 'Cholesterol Level',
+               'Family History of Alzheimer’s', 'Cognitive Test Score',
+               'Depression Level', 'Sleep Quality', 'Dietary Habits',
+               'Air Pollution Exposure', 'Employment Status', 'Marital Status',
+               'Genetic Risk Factor (APOE-ε4 allele)', 'Social Engagement Level',
+               'Income Level', 'Stress Levels', 'Urban vs Rural Living',
+               'Alzheimer’s Diagnosis']
+                df_input = pd.DataFrame(input_array, columns=column_names)   
+
+                # Lista de variables categóricas sin orden jerárquico
+                categorical_columns = ['Country', 'Gender', 'Smoking Status', 'Alcohol Consumption', 'Diabetes',
+                                        'Hypertension', 'Cholesterol Level', 'Family History of Alzheimer’s',
+                                        'Employment Status', 'Marital Status', 'Genetic Risk Factor (APOE-ε4 allele)',
+                                        'Urban vs Rural Living']
+                
+                # Aplicar One-Hot Encoding sin la primera categoría (drop_first=True)
+                df_input = pd.get_dummies(df_input, columns=categorical_columns, drop_first=True)
+
+                # Variables ordinales
+                ordinal_columns = ['Physical Activity Level', 'Depression Level', 'Sleep Quality', 'Dietary Habits',
+                                   'Air Pollution Exposure', 'Social Engagement Level', 'Income Level', 'Stress Levels',
+                                   'Alzheimer’s Diagnosis', 'Education Level']
+                
+                # Definir los LabelEncoders usados previamente (deben ser los mismos del entrenamiento)
+                label_encoders = {col: LabelEncoder() for col in ordinal_columns}
+                
+                # Aplicar Label Encoding usando los mismos encoders
+                for col in ordinal_columns:
+                    df_input[col] = label_encoders[col].fit_transform(df_input[col])
+
+                input_array = df_input.to_numpy()
+                
                 prediction = model.predict(input_array)
+
                 resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
                 st.subheader("Resultado de la Predicción")
                 st.write(resultado)
