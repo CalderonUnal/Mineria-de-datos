@@ -7,7 +7,7 @@ import pandas as pd
 # Función para cargar el modelo
 @st.cache_resource
 def load_model():
-    filename = "modelo_alzheimer.pkl.gz"
+    filename = "mejor_modelo_redes.pkl.gz"
     with gzip.open(filename, 'rb') as f:
         model = pickle.load(f)
     if not hasattr(model, 'predict'):
