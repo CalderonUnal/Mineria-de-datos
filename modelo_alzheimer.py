@@ -91,14 +91,18 @@ if st.button("Predecir"):
 
             # Hacer predicción
             prediction = model.predict(input_array)
-            
+
+            # Si prediction es un array, tomamos el primer valor
+            if isinstance(prediction, np.ndarray):
+                prediction = prediction[0]
+
             # Si el modelo usa probabilidades, ajustamos la interpretación
             if hasattr(model, "predict_proba"):  
                 probabilidad = model.predict_proba(input_array)[0][1]  # Probabilidad de Alzheimer
                 st.write(f"🔍 *Probabilidad de Alzheimer:* {probabilidad:.4f}")
                 resultado = "Positivo para Alzheimer" if probabilidad > 0.5 else "Negativo para Alzheimer"
             else:
-                resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
+                resultado = "Positivo para Alzheimer" if prediction == 1 else "Negativo para Alzheimer"
 
             # Mostrar resultado
             st.subheader("🧠 *Resultado de la Predicción*")
