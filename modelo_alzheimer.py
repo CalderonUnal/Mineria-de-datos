@@ -73,7 +73,7 @@ if st.button("Predecir"):
             input_array = df_input.to_numpy().reshape(1, -1)
 
             # Hacer la predicción
-            prediction = np.(model.predict(input_array))
+            prediction = (model.predict(input_array))
             if prediction == 0:
                 resultado = "Negativo para Alzheimer"
             else:
