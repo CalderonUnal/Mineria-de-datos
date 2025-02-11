@@ -7,7 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 
 @st.cache_resource
 def load_model():
-    filename = "mejor_modelo_redes_Xpromax.pkl.gz"
+    filename = "mejor_modelo_redes.pkl.gz"
     with gzip.open(filename, 'rb') as f:
         model = pickle.load(f)
     return model
@@ -73,12 +73,13 @@ if st.button("Predecir"):
             input_array = df_input.to_numpy().reshape(1, -1)
 
             # Hacer la predicción
-            prediction = model.predict(input_array)
-
-            resultado = "Positivo para Alzheimer" if prediction[0] == 1 else "Negativo para Alzheimer"
+            prediction = np.argmax(model.predict(input_array))
+            if prediction == 0:
+                resultado = "Negativo para Alzheimer"
+            else:
+                resultado = "Positivo para Alzheimer"
             st.subheader("Resultado de la Predicción")
             st.write(resultado)
         except Exception as e:
             st.error(f"Ocurrió un error al hacer la predicción: {str(e)}")
-
 
